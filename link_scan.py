@@ -4,7 +4,7 @@ import urllib.request
 
 from typing import List
 from selenium import webdriver
-from urllib.error import HTTPError, URLError
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 
@@ -18,7 +18,7 @@ def get_links(url: str) -> List:
 
     url_list = []
     browser.get(url)
-    elements = browser.find_elements_by_tag_name("a")
+    elements = browser.find_elements(By.TAG_NAME, "a")
     for link in elements:
         url: str = link.get_attribute('href')
         if url is not None:
