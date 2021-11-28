@@ -1,9 +1,11 @@
 import sys
 import urllib.error
 import urllib.request
-from typing import List
 
+from typing import List
 from selenium import webdriver
+from urllib.error import HTTPError, URLError
+from selenium.webdriver.chrome.options import Options
 
 
 def get_links(url: str) -> List:
@@ -24,7 +26,7 @@ def get_links(url: str) -> List:
                 url = url.split('#')[0]
             elif '?' in url:
                 url = url.split('?')[0]
-            if each_url not in url_list:
+            if url not in url_list:
                 url_list.append(url)
 
     return url_list
@@ -35,8 +37,8 @@ def is_valid_url(url: str):
 
     try:
         urllib.request.urlopen(url)
-    except urllib.error.HTTPError:
-        if urllib.error.HTTPError.code == 403:
+    except urllib.error.HTTPError as er:
+        if er.getcode() == 403:
             return True
         return False
     else:
@@ -47,11 +49,11 @@ def invalid_urls(urllist: List[str]) -> List[str]:
     """Validate the urls in urllist and return a new list containing
     the invalid or unreachable urls.
     """
-    valid_urls = []
+    in_valid_urls = []
     for url in urllist:
-        if not is_valid_url:
-            valid_urls.append(url)
-    return valid_urls
+        if not is_valid_url(url):
+            in_valid_urls.append(url)
+    return in_valid_urls
 
 
 if __name__ == '__main__':
@@ -61,7 +63,10 @@ if __name__ == '__main__':
         print('Usage:  python3 link_scan.py url')
         print('\nTest all hyperlinks on the given url.')
     else:
-        browser = webdriver.Chrome(executable_path='C:/Users/Administratorz/Downloads/chromedriver.exe')
+        my_options = Options()
+        my_options.headless = True
+        browser = webdriver.Chrome(executable_path='C:/Users/Administratorz/Downloads/chromedriver.exe',
+                                   options=my_options)
         urls = get_links(the_urls)
         for each_url in urls:
             print(each_url)
